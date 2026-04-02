@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpecKit</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-root: #0a0a0a;
+      --bg-surface: #1a1a1a;
+      --bg-elevated: #2a2a2a;
+      --bg-hover: #333333;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --accent-muted: rgba(99, 102, 241, 0.15);
+      --text-primary: #e5e5e5;
+      --text-secondary: #a3a3a3;
+      --text-muted: #737373;
+      --border: #2a2a2a;
+      --border-focus: #6366f1;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --suggestion: #3b82f6;
+      --success: #22c55e;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --font-mono: "SF Mono", "Cascadia Code", "Fira Code", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    html {
+      font-size: 14px;
+    }
+
+    body {
+      font-family: var(--font-mono);
+      background: var(--bg-root);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 100;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .tagline {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.01em;
+    }
+
+    /* Main content */
+    main {
+      padding: 32px 0 64px;
+    }
+
+    /* Input grid */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .input-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    textarea {
+      width: 100%;
+      height: 280px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.65;
+      padding: 16px;
+      resize: vertical;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-muted);
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      letter-spacing: -0.01em;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--bg-hover);
+    }
+
+    .btn .spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    .btn.loading .spinner {
+      display: inline-block;
+    }
+
+    .btn.loading .btn-text {
+      opacity: 0.7;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Output section */
+    .output-section {
+      min-height: 120px;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .output-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .output-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 180px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Error banner */
+    .error-banner {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      color: #fca5a5;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .error-banner strong {
+      color: var(--error);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Candidate snapshot */
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 6px 16px;
+      font-size: 0.8rem;
+    }
+
+    .snapshot-label {
+      color: var(--text-muted);
+    }
+
+    .snapshot-value {
+      color: var(--text-primary);
+    }
+
+    /* Alignment table */
+    .alignment-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .alignment-table th {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .alignment-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(42, 42, 42, 0.5);
+      vertical-align: top;
+    }
+
+    .alignment-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .alignment-table tr:hover td {
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    .match-strong {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .match-partial {
+      color: var(--warning);
+      font-weight: 600;
+    }
+
+    .match-gap {
+      color: var(--error);
+      font-weight: 600;
+    }
+
+    /* Questions list */
+    .question-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(42, 42, 42, 0.5);
+    }
+
+    .question-item:last-child {
+      border-bottom: none;
+    }
+
+    .question-category {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .question-text {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .question-intent {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Bias check */
+    .bias-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(42, 42, 42, 0.5);
+      font-size: 0.8rem;
+    }
+
+    .bias-item:last-child {
+      border-bottom: none;
+    }
+
+    .bias-icon {
+      flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+    }
+
+    .bias-icon.risk { background: var(--warning); }
+    .bias-icon.ok { background: var(--success); }
+
+    /* Lint results */
+    .lint-issue {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+    }
+
+    .lint-issue.error {
+      background: rgba(239, 68, 68, 0.06);
+      border-left: 3px solid var(--error);
+    }
+
+    .lint-issue.warning {
+      background: rgba(245, 158, 11, 0.06);
+      border-left: 3px solid var(--warning);
+    }
+
+    .lint-issue.suggestion,
+    .lint-issue.info {
+      background: rgba(59, 130, 246, 0.06);
+      border-left: 3px solid var(--suggestion);
+    }
+
+    .lint-level {
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    .lint-level.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+    }
+
+    .lint-level.warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fcd34d;
+    }
+
+    .lint-level.suggestion,
+    .lint-level.info {
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+    }
+
+    .lint-field {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      margin-bottom: 2px;
+    }
+
+    .lint-message {
+      color: var(--text-primary);
+    }
+
+    .ai-lint-section {
+      margin-top: 20px;
+    }
+
+    .ai-lint-content {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+    }
+
+    /* Divider */
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+
+      textarea {
+        height: 200px;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        justify-content: center;
+      }
+
+      .header-inner {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .snapshot-grid {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .alignment-table {
+        font-size: 0.72rem;
+      }
+
+      .alignment-table th,
+      .alignment-table td {
+        padding: 8px 6px;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-hover);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <div class="logo">Spec<span>Kit</span></div>
+      <div class="tagline">Spec files for AI-native people management</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="input-grid">
+        <div class="input-panel">
+          <label class="input-label" for="spec-input">Spec (YAML)</label>
+          <textarea
+            id="spec-input"
+            placeholder="Paste a role spec YAML here...
+
+kind: RoleSpec
+metadata:
+  title: Senior Software Engineer
+  level: L5
+  team: Platform
+..."
+            spellcheck="false"
+          ></textarea>
+        </div>
+        <div class="input-panel">
+          <label class="input-label" for="resume-input">Resume (plain text)</label>
+          <textarea
+            id="resume-input"
+            placeholder="Paste candidate resume text here...
+
+(Only required for interview prep,
+not needed for lint.)"
+            spellcheck="false"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btn-prep" onclick="runPrep()">
+          <span class="spinner"></span>
+          <span class="btn-text">Generate Interview Prep</span>
+        </button>
+        <button class="btn btn-secondary" id="btn-lint" onclick="runLint()">
+          <span class="spinner"></span>
+          <span class="btn-text">Lint Spec</span>
+        </button>
+      </div>
+
+      <div class="output-section" id="output">
+        <div class="empty-state">Results will appear here</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const specInput = document.getElementById('spec-input');
+    const resumeInput = document.getElementById('resume-input');
+    const btnPrep = document.getElementById('btn-prep');
+    const btnLint = document.getElementById('btn-lint');
+    const output = document.getElementById('output');
+
+    function setLoading(btn, loading) {
+      if (loading) {
+        btn.classList.add('loading');
+        btn.disabled = true;
+      } else {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    function escapeHtml(text) {
+      const el = document.createElement('div');
+      el.textContent = text;
+      return el.innerHTML;
+    }
+
+    function showError(message, issues) {
+      let html = '<div class="error-banner fade-in"><strong>Error:</strong> ' + escapeHtml(message);
+      if (issues && issues.length) {
+        html += '<ul style="margin-top:8px;padding-left:18px;">';
+        issues.forEach(function(i) {
+          html += '<li><strong>' + escapeHtml(i.field) + '</strong>: ' + escapeHtml(i.message) + '</li>';
+        });
+        html += '</ul>';
+      }
+      html += '</div>';
+      output.innerHTML = html;
+    }
+
+    /* ---- Interview Prep Rendering ---- */
+
+    function renderPrepOutput(data) {
+      const o = data.output;
+      const meta = data.meta;
+      let html = '';
+
+      html += '<div class="output-header"><span class="output-title">Interview Prep Package</span>';
+      if (meta) {
+        const parts = [];
+        if (meta.model) parts.push(escapeHtml(meta.model));
+        if (meta.total_tokens) parts.push(meta.total_tokens + ' tokens');
+        if (meta.duration_s) parts.push(meta.duration_s.toFixed(1) + 's');
+        if (parts.length) html += '<span class="output-meta">' + parts.join(' / ') + '</span>';
+      }
+      html += '</div>';
+
+      /* Candidate snapshot */
+      if (o.candidate_snapshot) {
+        const snap = o.candidate_snapshot;
+        html += '<div class="card fade-in">';
+        html += '<div class="card-title">Candidate Snapshot</div>';
+        html += '<div class="snapshot-grid">';
+        if (snap.name) html += '<div class="snapshot-label">Name</div><div class="snapshot-value">' + escapeHtml(snap.name) + '</div>';
+        if (snap.current_role) html += '<div class="snapshot-label">Current Role</div><div class="snapshot-value">' + escapeHtml(snap.current_role) + '</div>';
+        if (snap.experience_years) html += '<div class="snapshot-label">Experience</div><div class="snapshot-value">' + escapeHtml(String(snap.experience_years)) + ' years</div>';
+        if (snap.key_skills && snap.key_skills.length) {
+          html += '<div class="snapshot-label">Key Skills</div><div class="snapshot-value">' + snap.key_skills.map(escapeHtml).join(', ') + '</div>';
+        }
+        if (snap.education) html += '<div class="snapshot-label">Education</div><div class="snapshot-value">' + escapeHtml(snap.education) + '</div>';
+        if (snap.summary) html += '<div class="snapshot-label">Summary</div><div class="snapshot-value">' + escapeHtml(snap.summary) + '</div>';
+        /* Render any other keys */
+        const knownSnap = new Set(['name', 'current_role', 'experience_years', 'key_skills', 'education', 'summary']);
+        Object.keys(snap).forEach(function(k) {
+          if (!knownSnap.has(k)) {
+            html += '<div class="snapshot-label">' + escapeHtml(k.replace(/_/g, ' ')) + '</div><div class="snapshot-value">' + escapeHtml(String(snap[k])) + '</div>';
+          }
+        });
+        html += '</div></div>';
+      }
+
+      /* Spec alignment */
+      if (o.spec_alignment && o.spec_alignment.length) {
+        html += '<div class="card fade-in">';
+        html += '<div class="card-title">Spec Alignment</div>';
+        html += '<table class="alignment-table"><thead><tr>';
+        html += '<th>Requirement</th><th>Match</th><th>Evidence</th>';
+        html += '</tr></thead><tbody>';
+        o.spec_alignment.forEach(function(row) {
+          const match = (row.match || row.level || row.rating || '').toString().toLowerCase();
+          let cls = '';
+          if (match === 'strong' || match === 'yes' || match === 'met') cls = 'match-strong';
+          else if (match === 'partial' || match === 'some') cls = 'match-partial';
+          else if (match === 'gap' || match === 'no' || match === 'unmet' || match === 'missing') cls = 'match-gap';
+          html += '<tr>';
+          html += '<td>' + escapeHtml(row.requirement || row.area || '') + '</td>';
+          html += '<td class="' + cls + '">' + escapeHtml(row.match || row.level || row.rating || '') + '</td>';
+          html += '<td style="color:var(--text-secondary)">' + escapeHtml(row.evidence || row.notes || row.detail || '') + '</td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+
+      /* Questions */
+      if (o.questions && o.questions.length) {
+        html += '<div class="card fade-in">';
+        html += '<div class="card-title">Interview Questions (' + o.questions.length + ')</div>';
+        o.questions.forEach(function(q, idx) {
+          html += '<div class="question-item">';
+          if (q.category) html += '<div class="question-category">' + escapeHtml(q.category) + '</div>';
+          html += '<div class="question-text">' + escapeHtml(q.question || q.text || String(q)) + '</div>';
+          if (q.intent || q.why) html += '<div class="question-intent">' + escapeHtml(q.intent || q.why) + '</div>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+
+      /* Bias check */
+      if (o.bias_check) {
+        html += '<div class="card fade-in">';
+        html += '<div class="card-title">Bias Check</div>';
+        if (Array.isArray(o.bias_check)) {
+          o.bias_check.forEach(function(item) {
+            const isRisk = (item.risk || item.level || '').toString().toLowerCase() !== 'ok' &&
+                           (item.risk || item.level || '').toString().toLowerCase() !== 'low' &&
+                           (item.risk || item.level || '').toString().toLowerCase() !== 'none';
+            html += '<div class="bias-item">';
+            html += '<div class="bias-icon ' + (isRisk ? 'risk' : 'ok') + '"></div>';
+            html += '<div><span style="color:var(--text-primary)">' + escapeHtml(item.area || item.check || item.category || '') + '</span>';
+            if (item.note || item.detail || item.message) {
+              html += '<br><span style="color:var(--text-muted);font-size:0.75rem">' + escapeHtml(item.note || item.detail || item.message) + '</span>';
+            }
+            html += '</div></div>';
+          });
+        } else if (typeof o.bias_check === 'string') {
+          html += '<div style="font-size:0.85rem;color:var(--text-secondary);white-space:pre-wrap">' + escapeHtml(o.bias_check) + '</div>';
+        } else {
+          html += '<div style="font-size:0.85rem;color:var(--text-secondary);white-space:pre-wrap">' + escapeHtml(JSON.stringify(o.bias_check, null, 2)) + '</div>';
+        }
+        html += '</div>';
+      }
+
+      /* Fallback: render any remaining top-level keys as raw cards */
+      const knownKeys = new Set(['candidate_snapshot', 'spec_alignment', 'questions', 'bias_check']);
+      Object.keys(o).forEach(function(key) {
+        if (knownKeys.has(key)) return;
+        html += '<div class="card fade-in">';
+        html += '<div class="card-title">' + escapeHtml(key.replace(/_/g, ' ')) + '</div>';
+        const val = o[key];
+        if (typeof val === 'string') {
+          html += '<div style="font-size:0.85rem;color:var(--text-secondary);white-space:pre-wrap">' + escapeHtml(val) + '</div>';
+        } else {
+          html += '<pre style="font-size:0.8rem;color:var(--text-secondary);white-space:pre-wrap;overflow-x:auto">' + escapeHtml(JSON.stringify(val, null, 2)) + '</pre>';
+        }
+        html += '</div>';
+      });
+
+      output.innerHTML = html;
+    }
+
+    /* ---- Lint Rendering ---- */
+
+    function renderLintOutput(data) {
+      let html = '';
+
+      html += '<div class="output-header"><span class="output-title">Lint Results</span>';
+      if (data.meta) {
+        const parts = [];
+        if (data.meta.model) parts.push(escapeHtml(data.meta.model));
+        if (data.meta.total_tokens) parts.push(data.meta.total_tokens + ' tokens');
+        if (parts.length) html += '<span class="output-meta">' + parts.join(' / ') + '</span>';
+      }
+      html += '</div>';
+
+      /* Structural issues */
+      if (data.structural_issues && data.structural_issues.length) {
+        html += '<div class="card fade-in">';
+        html += '<div class="card-title">Structural Issues (' + data.structural_issues.length + ')</div>';
+        data.structural_issues.forEach(function(issue) {
+          const level = (issue.level || 'info').toLowerCase();
+          html += '<div class="lint-issue ' + escapeHtml(level) + '">';
+          html += '<span class="lint-level ' + escapeHtml(level) + '">' + escapeHtml(level) + '</span>';
+          html += '<div>';
+          if (issue.field) html += '<div class="lint-field">' + escapeHtml(issue.field) + '</div>';
+          html += '<div class="lint-message">' + escapeHtml(issue.message) + '</div>';
+          html += '</div></div>';
+        });
+        html += '</div>';
+      } else {
+        html += '<div class="card fade-in">';
+        html += '<div class="card-title">Structural Issues</div>';
+        html += '<div style="color:var(--success);font-size:0.85rem">No structural issues found.</div>';
+        html += '</div>';
+      }
+
+      /* AI lint */
+      if (data.ai_lint) {
+        html += '<div class="card fade-in ai-lint-section">';
+        html += '<div class="card-title">AI Analysis</div>';
+        if (typeof data.ai_lint === 'string') {
+          html += '<div class="ai-lint-content">' + escapeHtml(data.ai_lint) + '</div>';
+        } else if (Array.isArray(data.ai_lint)) {
+          data.ai_lint.forEach(function(item) {
+            if (typeof item === 'string') {
+              html += '<div class="lint-issue info"><div class="lint-message">' + escapeHtml(item) + '</div></div>';
+            } else {
+              const level = (item.level || item.severity || 'info').toLowerCase();
+              html += '<div class="lint-issue ' + escapeHtml(level) + '">';
+              html += '<span class="lint-level ' + escapeHtml(level) + '">' + escapeHtml(level) + '</span>';
+              html += '<div>';
+              if (item.field || item.area) html += '<div class="lint-field">' + escapeHtml(item.field || item.area) + '</div>';
+              html += '<div class="lint-message">' + escapeHtml(item.message || item.detail || item.text || JSON.stringify(item)) + '</div>';
+              html += '</div></div>';
+            }
+          });
+        } else {
+          html += '<pre style="font-size:0.8rem;color:var(--text-secondary);white-space:pre-wrap">' + escapeHtml(JSON.stringify(data.ai_lint, null, 2)) + '</pre>';
+        }
+        html += '</div>';
+      }
+
+      output.innerHTML = html;
+    }
+
+    /* ---- API Calls ---- */
+
+    async function runPrep() {
+      const specText = specInput.value.trim();
+      const resumeText = resumeInput.value.trim();
+
+      if (!specText) {
+        showError('Please paste a spec YAML in the left panel.');
+        return;
+      }
+      if (!resumeText) {
+        showError('Please paste resume text in the right panel.');
+        return;
+      }
+
+      setLoading(btnPrep, true);
+      setLoading(btnLint, true);
+      output.innerHTML = '<div class="empty-state"><span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid var(--bg-hover);border-top-color:var(--accent);border-radius:50%;animation:spin 0.6s linear infinite;margin-right:12px"></span>Generating interview prep...</div>';
+
+      try {
+        const res = await fetch('/api/prep', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ spec_text: specText, resume_text: resumeText }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(function() { return { detail: 'Request failed with status ' + res.status }; });
+          const detail = err.detail || err;
+          if (typeof detail === 'object' && detail.issues) {
+            showError(detail.message || 'Validation failed', detail.issues);
+          } else {
+            showError(typeof detail === 'string' ? detail : JSON.stringify(detail));
+          }
+          return;
+        }
+
+        const data = await res.json();
+        renderPrepOutput(data);
+      } catch (e) {
+        showError('Network error: ' + e.message);
+      } finally {
+        setLoading(btnPrep, false);
+        setLoading(btnLint, false);
+      }
+    }
+
+    async function runLint() {
+      const specText = specInput.value.trim();
+
+      if (!specText) {
+        showError('Please paste a spec YAML in the left panel.');
+        return;
+      }
+
+      setLoading(btnPrep, true);
+      setLoading(btnLint, true);
+      output.innerHTML = '<div class="empty-state"><span class="spinner" style="display:inline-block;width:18px;height:18px;border:2px solid var(--bg-hover);border-top-color:var(--accent);border-radius:50%;animation:spin 0.6s linear infinite;margin-right:12px"></span>Linting spec...</div>';
+
+      try {
+        const res = await fetch('/api/lint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ spec_text: specText }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(function() { return { detail: 'Request failed with status ' + res.status }; });
+          const detail = err.detail || err;
+          if (typeof detail === 'object' && detail.issues) {
+            showError(detail.message || 'Validation failed', detail.issues);
+          } else {
+            showError(typeof detail === 'string' ? detail : JSON.stringify(detail));
+          }
+          return;
+        }
+
+        const data = await res.json();
+        renderLintOutput(data);
+      } catch (e) {
+        showError('Network error: ' + e.message);
+      } finally {
+        setLoading(btnPrep, false);
+        setLoading(btnLint, false);
+      }
+    }
+  </script>
+</body>
+</html>
