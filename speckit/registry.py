@@ -1,5 +1,7 @@
 """Module registry — maps action names to modules."""
 
+from __future__ import annotations
+
 from speckit.modules.base import Module
 
 

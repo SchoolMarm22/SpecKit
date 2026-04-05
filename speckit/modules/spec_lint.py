@@ -1,5 +1,7 @@
 """Spec lint module — analyzes specs for bias, vagueness, and quality."""
 
+from __future__ import annotations
+
 from speckit.modules.base import Module, InvocationPlan
 
 

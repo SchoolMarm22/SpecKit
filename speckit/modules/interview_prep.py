@@ -1,5 +1,7 @@
 """Interview prep module — spec + resume → structured interview package."""
 
+from __future__ import annotations
+
 from speckit.modules.base import Module, InvocationPlan
 
 

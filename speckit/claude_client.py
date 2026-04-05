@@ -1,5 +1,7 @@
 """Thin wrapper around the Anthropic SDK for structured output via tool_use."""
 
+from __future__ import annotations
+
 import os
 
 import anthropic

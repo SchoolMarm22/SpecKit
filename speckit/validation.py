@@ -1,5 +1,7 @@
 """Spec file validation — structural checks, no API calls."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 VALID_KINDS = {"hiring", "review", "team", "onboarding", "offboarding"}

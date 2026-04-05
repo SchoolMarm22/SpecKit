@@ -1,5 +1,7 @@
 """SpecKit — Spec files for AI-native people management."""
 
+from __future__ import annotations
+
 from speckit.spec import SpecFile, load_spec, parse_spec, list_specs
 from speckit.validation import ValidationIssue, validate_spec_structure, VALID_KINDS
 from speckit.run_record import RunRecord
