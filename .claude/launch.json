@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "SpecKit Web Demo",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "PYTHONPATH=/Users/christophermartin/SpecKit python3 -m uvicorn speckit.web.app:app --host localhost --port 8000"],
+      "port": 8000
+    },
+    {
+      "name": "SpecKit MCP Server",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "PYTHONPATH=/Users/christophermartin/SpecKit python3 -m speckit.cli serve --host localhost --port 8321"],
+      "port": 8321
+    }
+  ]
+}
