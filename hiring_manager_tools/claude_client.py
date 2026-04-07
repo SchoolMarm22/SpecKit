@@ -50,5 +50,5 @@ class ClaudeClient:
             if block.type == "tool_use" and block.name == "structured_output":
                 return block.input
 
-        from speckit import EngineError
+        from hiring_manager_tools import EngineError
         raise EngineError("Claude did not return a structured output tool call")

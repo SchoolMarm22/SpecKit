@@ -51,7 +51,7 @@ class RunRecord:
         return json.dumps(data)
 
 
-def persist_run(run: RunRecord, runs_dir: str = ".speckit/runs"):
+def persist_run(run: RunRecord, runs_dir: str = ".hiring_manager_tools/runs"):
     """Append run record to JSONL file organized by date."""
     os.makedirs(runs_dir, exist_ok=True)
     date_str = run.started_at.strftime("%Y-%m-%d")

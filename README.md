@@ -131,18 +131,18 @@ No business logic lives in the interfaces. No Claude-specific logic lives in the
 
 | Component | File(s) | Description |
 |-----------|---------|-------------|
-| Spec Parser | `speckit/spec.py` | `SpecFile` dataclass, YAML frontmatter parsing, section splitting by H2, `load_spec()`, `parse_spec()`, `list_specs()` |
-| Validation | `speckit/validation.py` | Structural checks (no API calls). Required fields per kind, unknown kind warnings |
-| Engine | `speckit/engine.py` | Executes `InvocationPlan`s, records runs to JSONL, builds meta blocks |
-| Claude Client | `speckit/claude_client.py` | Thin Anthropic SDK wrapper. `tool_use` with forced `tool_choice` for structured JSON |
-| Registry | `speckit/registry.py` | Maps module names to instances, validates spec-kind compatibility |
-| Run Records | `speckit/run_record.py` | `RunRecord` dataclass, JSONL persistence to `.speckit/runs/YYYY-MM-DD.jsonl` |
-| Module ABC | `speckit/modules/base.py` | `Module`, `InvocationPlan`, `ModuleResult`. Prompt template loading helpers |
-| Interview Prep | `speckit/modules/interview_prep.py` | Hiring spec + resume → snapshot, alignment, questions, bias check |
-| Spec Lint | `speckit/modules/spec_lint.py` | Any spec → issues (bias_risk, vagueness, legal_risk, missing_section, clarity) |
-| CLI | `speckit/cli.py` | Click-based. `prep`, `lint`, `list`, `serve`, `web` |
-| MCP Server | `speckit/mcp_server.py` | Resources (`spec://kind/name`) + Tools (`prepare_interview`, `lint_spec`, `list_specs`) |
-| Web Demo | `speckit/web/app.py`, `speckit/web/static/index.html` | FastAPI + single-file dark-mode UI |
+| Spec Parser | `hiring_manager_tools/spec.py` | `SpecFile` dataclass, YAML frontmatter parsing, section splitting by H2, `load_spec()`, `parse_spec()`, `list_specs()` |
+| Validation | `hiring_manager_tools/validation.py` | Structural checks (no API calls). Required fields per kind, unknown kind warnings |
+| Engine | `hiring_manager_tools/engine.py` | Executes `InvocationPlan`s, records runs to JSONL, builds meta blocks |
+| Claude Client | `hiring_manager_tools/claude_client.py` | Thin Anthropic SDK wrapper. `tool_use` with forced `tool_choice` for structured JSON |
+| Registry | `hiring_manager_tools/registry.py` | Maps module names to instances, validates spec-kind compatibility |
+| Run Records | `hiring_manager_tools/run_record.py` | `RunRecord` dataclass, JSONL persistence to `.hiring_manager_tools/runs/YYYY-MM-DD.jsonl` |
+| Module ABC | `hiring_manager_tools/modules/base.py` | `Module`, `InvocationPlan`, `ModuleResult`. Prompt template loading helpers |
+| Interview Prep | `hiring_manager_tools/modules/interview_prep.py` | Hiring spec + resume → snapshot, alignment, questions, bias check |
+| Spec Lint | `hiring_manager_tools/modules/spec_lint.py` | Any spec → issues (bias_risk, vagueness, legal_risk, missing_section, clarity) |
+| CLI | `hiring_manager_tools/cli.py` | Click-based. `prep`, `lint`, `list`, `serve`, `web` |
+| MCP Server | `hiring_manager_tools/mcp_server.py` | Resources (`spec://kind/name`) + Tools (`prepare_interview`, `lint_spec`, `list_specs`) |
+| Web Demo | `hiring_manager_tools/web/app.py`, `hiring_manager_tools/web/static/index.html` | FastAPI + single-file dark-mode UI |
 | Eval: Consistency | `evals/test_consistency.py` | Same input 3x, assert structural stability |
 | Eval: Bias Swap | `evals/test_bias_swap.py` | 4 name variants, assert identical assessments |
 | Eval: Lint | `evals/test_spec_lint.py` | Known-bad specs → correct flags |
@@ -162,10 +162,10 @@ No business logic lives in the interfaces. No Claude-specific logic lives in the
 
 ### Adding a New Module
 
-1. Create `speckit/modules/your_module.py` implementing the `Module` ABC:
+1. Create `hiring_manager_tools/modules/your_module.py` implementing the `Module` ABC:
 
 ```python
-from speckit.modules.base import Module, InvocationPlan
+from hiring_manager_tools.modules.base import Module, InvocationPlan
 
 class YourModule(Module):
     @property
@@ -194,19 +194,19 @@ class YourModule(Module):
 ```
 
 2. Create `prompts/your_module.md` with YAML frontmatter (`prompt_version`, `module`).
-3. Register in `speckit/registry.py` → `create_default_registry()`.
-4. Add CLI command in `speckit/cli.py` and MCP tool in `speckit/mcp_server.py`.
+3. Register in `hiring_manager_tools/registry.py` → `create_default_registry()`.
+4. Add CLI command in `hiring_manager_tools/cli.py` and MCP tool in `hiring_manager_tools/mcp_server.py`.
 
 ### Adding a New Spec Kind
 
-1. Add the kind to `VALID_KINDS` in `speckit/validation.py`.
+1. Add the kind to `VALID_KINDS` in `hiring_manager_tools/validation.py`.
 2. Add kind-specific required fields to `validate_spec_structure()`.
 3. Create `specs/{kind}/` with example specs.
 4. Write a module that includes the new kind in `supported_kinds`.
 
 ### Error Handling
 
-Exception hierarchy rooted at `SpecKitError`:
+Exception hierarchy rooted at `HMTError`:
 
 | Exception | When |
 |-----------|------|
@@ -259,7 +259,7 @@ make test-bias     # Bias swap tests (~$0.30)
 ### Project Structure
 
 ```
-├── speckit/                 # Python package
+├── hiring_manager_tools/                 # Python package
 │   ├── __init__.py          # Public API + exceptions
 │   ├── spec.py              # SpecFile dataclass, loader, parser
 │   ├── validation.py        # Structural validation

@@ -6,7 +6,7 @@ The spec file format supports `kind: review` for performance review configuratio
 
 **Format-ready, module not yet implemented.**
 
-You can write review specs now using the standard format. They will parse, validate, and be listed by `speckit list`. When the review module ships, your specs will work without changes.
+You can write review specs now using the standard format. They will parse, validate, and be listed by `spec list`. When the review module ships, your specs will work without changes.
 
 ## Example
 

@@ -2,24 +2,24 @@
 
 from __future__ import annotations
 
-from speckit.spec import SpecFile, load_spec, parse_spec, list_specs
-from speckit.validation import ValidationIssue, validate_spec_structure, VALID_KINDS
-from speckit.run_record import RunRecord
-from speckit.engine import Engine
-from speckit.registry import ModuleRegistry, create_default_registry
+from hiring_manager_tools.spec import SpecFile, load_spec, parse_spec, list_specs
+from hiring_manager_tools.validation import ValidationIssue, validate_spec_structure, VALID_KINDS
+from hiring_manager_tools.run_record import RunRecord
+from hiring_manager_tools.engine import Engine
+from hiring_manager_tools.registry import ModuleRegistry, create_default_registry
 
 __version__ = "0.1.0"
 
 
-class SpecKitError(Exception):
+class HMTError(Exception):
     """Base exception for Hiring Manager Tools."""
 
 
-class SpecValidationError(SpecKitError):
+class SpecValidationError(HMTError):
     """Raised when a spec file fails validation."""
 
 
-class UnknownModuleError(SpecKitError):
+class UnknownModuleError(HMTError):
     """Raised when an unknown module is requested."""
 
     def __init__(self, action: str):
@@ -27,7 +27,7 @@ class UnknownModuleError(SpecKitError):
         super().__init__(f"Unknown module: '{action}'")
 
 
-class IncompatibleSpecError(SpecKitError):
+class IncompatibleSpecError(HMTError):
     """Raised when a module doesn't support the given spec kind."""
 
     def __init__(self, action: str, spec_kind: str, supported_kinds: list[str]):
@@ -40,5 +40,5 @@ class IncompatibleSpecError(SpecKitError):
         )
 
 
-class EngineError(SpecKitError):
+class EngineError(HMTError):
     """Raised when the engine encounters an error during execution."""

@@ -89,13 +89,13 @@ Covers 24 role families across 4 levels:
 
 ```bash
 # List all library specs
-speckit list --specs-dir specs/library --kind hiring --pretty
+spec list --specs-dir specs/library --kind hiring --pretty
 
 # Use a library spec for interview prep
-speckit prep --spec library/hiring/generic/frontend-react-senior --resume ./resume.txt --specs-dir specs --pretty
+spec prep --spec library/hiring/generic/frontend-react-senior --resume ./resume.txt --specs-dir specs --pretty
 
 # Lint a library spec
-speckit lint --spec library/hiring/companies/google-backend-senior --specs-dir specs --pretty
+spec lint --spec library/hiring/companies/google-backend-senior --specs-dir specs --pretty
 ```
 
 ## Regenerating
@@ -116,5 +116,5 @@ These specs are starting points. Copy one to `specs/hiring/`, edit it to reflect
 ```bash
 cp specs/library/hiring/generic/backend-python-senior.md specs/hiring/my-backend-role.md
 # Edit to taste, then:
-speckit prep --spec hiring/my-backend-role --resume ./candidate.txt --pretty
+spec prep --spec hiring/my-backend-role --resume ./candidate.txt --pretty
 ```

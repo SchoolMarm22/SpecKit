@@ -26,4 +26,4 @@ dev = [
 ]
 
 [project.scripts]
-spec = "speckit.cli:main"
+spec = "hiring_manager_tools.cli:main"

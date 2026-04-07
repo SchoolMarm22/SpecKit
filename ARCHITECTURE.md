@@ -34,7 +34,7 @@ Every operation follows the same path:
 Request → SpecFile → Module.plan() → InvocationPlan → Engine.execute() → ModuleResult → Response
 ```
 
-Concrete example for `speckit prep`:
+Concrete example for `spec prep`:
 
 ```
 1. CLI parses --spec and --resume args
@@ -48,7 +48,7 @@ Concrete example for `speckit prep`:
    └─ Creates RunRecord (status: "running")
    └─ ClaudeClient.invoke() sends to Anthropic API with tool_use
    └─ Claude returns structured JSON via tool call
-   └─ RunRecord marked "success", appended to .speckit/runs/YYYY-MM-DD.jsonl
+   └─ RunRecord marked "success", appended to .hiring_manager_tools/runs/YYYY-MM-DD.jsonl
    └─ ModuleResult contains output + meta block
 6. CLI serializes result as JSON to stdout
 ```
@@ -111,7 +111,7 @@ The engine is module-agnostic. It receives an `InvocationPlan` and returns a `Mo
 
 ### RunRecord
 
-Every engine execution produces a `RunRecord` persisted to `.speckit/runs/YYYY-MM-DD.jsonl`. Fields:
+Every engine execution produces a `RunRecord` persisted to `.hiring_manager_tools/runs/YYYY-MM-DD.jsonl`. Fields:
 
 - `run_id` — UUID
 - `module_name` — Which module ran
@@ -188,21 +188,21 @@ The frontmatter provides versioning. The body becomes the system prompt. Prompts
 
 ## Layer 3: Interfaces
 
-### CLI (`speckit/cli.py`)
+### CLI (`hiring_manager_tools/cli.py`)
 
 Built with Click. Five commands:
 
 | Command | API Calls | Description |
 |---------|-----------|-------------|
-| `speckit prep` | Yes | Generate interview prep |
-| `speckit lint` | Yes | Structural + AI lint |
-| `speckit list` | No | List specs as JSON |
-| `speckit serve` | No (server) | Start MCP server |
-| `speckit web` | No (server) | Start web demo |
+| `spec prep` | Yes | Generate interview prep |
+| `spec lint` | Yes | Structural + AI lint |
+| `spec list` | No | List specs as JSON |
+| `spec serve` | No (server) | Start MCP server |
+| `spec web` | No (server) | Start web demo |
 
 All commands output JSON. Use `--pretty` for indented output. Pipe through `jq` for filtering.
 
-### MCP Server (`speckit/mcp_server.py`)
+### MCP Server (`hiring_manager_tools/mcp_server.py`)
 
 Uses the official `mcp` Python SDK. Exposes:
 
@@ -211,7 +211,7 @@ Uses the official `mcp` Python SDK. Exposes:
 
 The MCP server is a transport layer. It translates MCP protocol calls into engine calls and returns results in MCP format. No business logic.
 
-### Web Demo (`speckit/web/`)
+### Web Demo (`hiring_manager_tools/web/`)
 
 FastAPI app with two API endpoints (`/api/prep`, `/api/lint`) and a single-file HTML UI. The web demo accepts raw text paste for both spec and resume — it uses `parse_spec()` instead of `load_spec()`, so there's no dependency on the filesystem. Zero setup for trying Hiring Manager Tools.
 

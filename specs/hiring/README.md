@@ -43,7 +43,7 @@ version: 1
 
 ## Validation
 
-Run `speckit lint --spec hiring/your-spec-name` to check a spec for:
+Run `spec lint --spec hiring/your-spec-name` to check a spec for:
 - Structural completeness (required frontmatter fields)
 - Bias risk ("culture fit", "native speaker", prestige requirements)
 - Vagueness ("team player", "self-starter")

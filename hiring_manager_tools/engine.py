@@ -1,7 +1,7 @@
 """Engine executor — runs invocation plans against Claude."""
 
-from speckit.modules.base import InvocationPlan, ModuleResult
-from speckit.run_record import RunRecord, persist_run
+from hiring_manager_tools.modules.base import InvocationPlan, ModuleResult
+from hiring_manager_tools.run_record import RunRecord, persist_run
 
 
 class Engine:
@@ -10,7 +10,7 @@ class Engine:
     Does not know about specific modules — only about plans and results.
     """
 
-    def __init__(self, client, runs_dir: str = ".speckit/runs"):
+    def __init__(self, client, runs_dir: str = ".hiring_manager_tools/runs"):
         self.client = client
         self.runs_dir = runs_dir
 

@@ -4,13 +4,13 @@
     {
       "name": "HMT Web Demo",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-lc", "cd /Users/christophermartin/SpecKit && PYTHONPATH=. python3 -m uvicorn speckit.web.app:app --host localhost --port 8000"],
+      "runtimeArgs": ["-lc", "cd /Users/christophermartin/SpecKit && PYTHONPATH=. python3 -m uvicorn hiring_manager_tools.web.app:app --host localhost --port 8000"],
       "port": 8000
     },
     {
       "name": "HMT MCP Server",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-lc", "cd /Users/christophermartin/SpecKit && PYTHONPATH=. python3 -m speckit.cli serve --host localhost --port 8321"],
+      "runtimeArgs": ["-lc", "cd /Users/christophermartin/SpecKit && PYTHONPATH=. python3 -m hiring_manager_tools.cli serve --host localhost --port 8321"],
       "port": 8321
     }
   ]

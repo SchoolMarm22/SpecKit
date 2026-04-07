@@ -39,11 +39,11 @@ async def index():
 @app.post("/api/prep")
 async def prep(request: PrepRequest):
     """Generate interview prep from pasted spec + resume text."""
-    from speckit.spec import parse_spec
-    from speckit.validation import validate_spec_structure
-    from speckit.claude_client import ClaudeClient
-    from speckit.engine import Engine
-    from speckit.registry import create_default_registry
+    from hiring_manager_tools.spec import parse_spec
+    from hiring_manager_tools.validation import validate_spec_structure
+    from hiring_manager_tools.claude_client import ClaudeClient
+    from hiring_manager_tools.engine import Engine
+    from hiring_manager_tools.registry import create_default_registry
 
     _check_api_key()
 
@@ -78,11 +78,11 @@ async def prep(request: PrepRequest):
 @app.post("/api/lint")
 async def lint(request: LintRequest):
     """Lint a pasted spec."""
-    from speckit.spec import parse_spec
-    from speckit.validation import validate_spec_structure
-    from speckit.claude_client import ClaudeClient
-    from speckit.engine import Engine
-    from speckit.registry import create_default_registry
+    from hiring_manager_tools.spec import parse_spec
+    from hiring_manager_tools.validation import validate_spec_structure
+    from hiring_manager_tools.claude_client import ClaudeClient
+    from hiring_manager_tools.engine import Engine
+    from hiring_manager_tools.registry import create_default_registry
 
     _check_api_key()
 

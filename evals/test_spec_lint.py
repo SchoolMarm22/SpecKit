@@ -3,10 +3,10 @@
 import os
 import pytest
 
-from speckit.spec import parse_spec, load_spec
-from speckit.claude_client import ClaudeClient
-from speckit.engine import Engine
-from speckit.registry import create_default_registry
+from hiring_manager_tools.spec import parse_spec, load_spec
+from hiring_manager_tools.claude_client import ClaudeClient
+from hiring_manager_tools.engine import Engine
+from hiring_manager_tools.registry import create_default_registry
 
 
 BIASED_SPEC_PATH = os.path.join("evals", "fixtures", "biased_spec.md")

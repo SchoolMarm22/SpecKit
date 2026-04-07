@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from speckit.modules.base import Module, InvocationPlan
+from hiring_manager_tools.modules.base import Module, InvocationPlan
 
 
 class SpecLintModule(Module):

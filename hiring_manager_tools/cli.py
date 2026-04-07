@@ -21,10 +21,10 @@ def main():
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output")
 def prep(spec, resume, specs_dir, output, pretty):
     """Generate an interview prep package from a spec and resume."""
-    from speckit.spec import load_spec
-    from speckit.claude_client import ClaudeClient
-    from speckit.engine import Engine
-    from speckit.registry import create_default_registry
+    from hiring_manager_tools.spec import load_spec
+    from hiring_manager_tools.claude_client import ClaudeClient
+    from hiring_manager_tools.engine import Engine
+    from hiring_manager_tools.registry import create_default_registry
 
     # Load spec
     spec_path = os.path.join(specs_dir, f"{spec}.md")
@@ -72,11 +72,11 @@ def prep(spec, resume, specs_dir, output, pretty):
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output")
 def lint(spec, specs_dir, pretty):
     """Lint a spec file for quality, bias, and completeness."""
-    from speckit.spec import load_spec
-    from speckit.validation import validate_spec_structure
-    from speckit.claude_client import ClaudeClient
-    from speckit.engine import Engine
-    from speckit.registry import create_default_registry
+    from hiring_manager_tools.spec import load_spec
+    from hiring_manager_tools.validation import validate_spec_structure
+    from hiring_manager_tools.claude_client import ClaudeClient
+    from hiring_manager_tools.engine import Engine
+    from hiring_manager_tools.registry import create_default_registry
 
     # Load spec
     spec_path = os.path.join(specs_dir, f"{spec}.md")
@@ -118,7 +118,7 @@ def lint(spec, specs_dir, pretty):
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output")
 def list_cmd(kind, specs_dir, pretty):
     """List available spec files."""
-    from speckit.spec import list_specs
+    from hiring_manager_tools.spec import list_specs
 
     specs = list_specs(specs_dir, kind=kind)
     output = []
@@ -141,7 +141,7 @@ def list_cmd(kind, specs_dir, pretty):
 @click.option("--port", default=8321, type=int)
 def serve(specs_dir, host, port):
     """Start the MCP server."""
-    from speckit.mcp_server import create_mcp_server
+    from hiring_manager_tools.mcp_server import create_mcp_server
     create_mcp_server(specs_dir).run(host=host, port=port)
 
 
@@ -154,8 +154,8 @@ def web(host, port, specs_dir):
     import uvicorn
 
     # Set specs_dir as env var so the app can read it
-    os.environ["SPECKIT_SPECS_DIR"] = specs_dir
-    uvicorn.run("speckit.web.app:app", host=host, port=port, reload=False)
+    os.environ["HMT_SPECS_DIR"] = specs_dir
+    uvicorn.run("hiring_manager_tools.web.app:app", host=host, port=port, reload=False)
 
 
 if __name__ == "__main__":

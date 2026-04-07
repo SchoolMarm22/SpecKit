@@ -9,12 +9,12 @@ from mcp.types import Resource, Tool, TextContent
 
 def create_mcp_server(specs_dir: str = "specs") -> Server:
     """Create and configure the MCP server."""
-    server = Server("speckit")
+    server = Server("hiring_manager_tools")
 
     @server.list_resources()
     async def list_resources():
         """List all available spec resources."""
-        from speckit.spec import list_specs
+        from hiring_manager_tools.spec import list_specs
         resources = []
         all_specs = list_specs(specs_dir)
         for spec in all_specs:
@@ -110,10 +110,10 @@ def create_mcp_server(specs_dir: str = "specs") -> Server:
 
 
 async def _prepare_interview(arguments: dict, specs_dir: str):
-    from speckit.spec import load_spec
-    from speckit.claude_client import ClaudeClient
-    from speckit.engine import Engine
-    from speckit.registry import create_default_registry
+    from hiring_manager_tools.spec import load_spec
+    from hiring_manager_tools.claude_client import ClaudeClient
+    from hiring_manager_tools.engine import Engine
+    from hiring_manager_tools.registry import create_default_registry
 
     spec_ref = arguments["spec_ref"]
     resume_text = arguments["resume_text"]
@@ -136,11 +136,11 @@ async def _prepare_interview(arguments: dict, specs_dir: str):
 
 
 async def _lint_spec(arguments: dict, specs_dir: str):
-    from speckit.spec import load_spec
-    from speckit.validation import validate_spec_structure
-    from speckit.claude_client import ClaudeClient
-    from speckit.engine import Engine
-    from speckit.registry import create_default_registry
+    from hiring_manager_tools.spec import load_spec
+    from hiring_manager_tools.validation import validate_spec_structure
+    from hiring_manager_tools.claude_client import ClaudeClient
+    from hiring_manager_tools.engine import Engine
+    from hiring_manager_tools.registry import create_default_registry
 
     spec_ref = arguments["spec_ref"]
     spec_path = os.path.join(specs_dir, f"{spec_ref}.md")
@@ -171,7 +171,7 @@ async def _lint_spec(arguments: dict, specs_dir: str):
 
 
 async def _list_specs(arguments: dict, specs_dir: str):
-    from speckit.spec import list_specs as ls
+    from hiring_manager_tools.spec import list_specs as ls
 
     kind = arguments.get("kind")
     specs = ls(specs_dir, kind=kind)

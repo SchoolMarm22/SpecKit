@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from speckit.modules.base import Module
+from hiring_manager_tools.modules.base import Module
 
 
 class UnknownModuleError(Exception):
@@ -58,8 +58,8 @@ class ModuleRegistry:
 
 def create_default_registry() -> ModuleRegistry:
     """Create a registry with all built-in modules."""
-    from speckit.modules.interview_prep import InterviewPrepModule
-    from speckit.modules.spec_lint import SpecLintModule
+    from hiring_manager_tools.modules.interview_prep import InterviewPrepModule
+    from hiring_manager_tools.modules.spec_lint import SpecLintModule
 
     registry = ModuleRegistry()
     registry.register(InterviewPrepModule())
