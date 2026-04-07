@@ -248,8 +248,8 @@ Exception hierarchy rooted at `SpecKitError`:
 ### Development
 
 ```bash
-git clone https://github.com/SchoolMarm22/SpecKit.git
-cd SpecKit
+git clone https://github.com/SchoolMarm22/Hiring-Manager-Tools.git
+cd Hiring-Manager-Tools
 pip install -e ".[dev]"
 make test          # Non-slow tests (no API key needed)
 make test-all      # Full eval suite (~$0.50-1.00)
