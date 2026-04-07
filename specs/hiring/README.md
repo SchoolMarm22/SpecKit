@@ -1,6 +1,6 @@
 # Hiring Specs
 
-This directory contains spec files for `kind: hiring`. Each file configures how SpecKit evaluates candidates for a specific role.
+This directory contains spec files for `kind: hiring`. Each file configures how Hiring Manager Tools evaluates candidates for a specific role.
 
 ## Included Specs
 

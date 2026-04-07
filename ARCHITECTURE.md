@@ -1,10 +1,10 @@
 # Architecture
 
-This document describes SpecKit's internal architecture, data flow, and design rationale. Read this if you want to contribute, extend, or understand why things are built the way they are.
+This document describes Hiring Manager Tools' internal architecture, data flow, and design rationale. Read this if you want to contribute, extend, or understand why things are built the way they are.
 
 ## System Overview
 
-SpecKit is a four-layer system. Each layer has a single responsibility and a clean API boundary.
+Hiring Manager Tools is a four-layer system. Each layer has a single responsibility and a clean API boundary.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -213,7 +213,7 @@ The MCP server is a transport layer. It translates MCP protocol calls into engin
 
 ### Web Demo (`speckit/web/`)
 
-FastAPI app with two API endpoints (`/api/prep`, `/api/lint`) and a single-file HTML UI. The web demo accepts raw text paste for both spec and resume — it uses `parse_spec()` instead of `load_spec()`, so there's no dependency on the filesystem. Zero setup for trying SpecKit.
+FastAPI app with two API endpoints (`/api/prep`, `/api/lint`) and a single-file HTML UI. The web demo accepts raw text paste for both spec and resume — it uses `parse_spec()` instead of `load_spec()`, so there's no dependency on the filesystem. Zero setup for trying Hiring Manager Tools.
 
 ## Eval Suite
 
@@ -254,7 +254,7 @@ make test-bias     # Bias swap tests only (~$0.30)
 
 ## Error Handling
 
-Custom exception hierarchy rooted at `SpecKitError`:
+Custom exception hierarchy rooted at `Hiring Manager ToolsError`:
 
 | Exception | When |
 |-----------|------|

@@ -4,7 +4,7 @@
 
 A **spec file** is a natural language document that configures how AI behaves in a people management workflow. Spec files are to people management what config files are to infrastructure — human-readable, version-controlled, and machine-applicable.
 
-SpecKit treats spec files as the single source of truth. The AI is the executor. The human is the decision-maker. The spec is the contract between them.
+Hiring Manager Tools treats spec files as the single source of truth. The AI is the executor. The human is the decision-maker. The spec is the contract between them.
 
 ## 2. File Format
 
@@ -107,7 +107,7 @@ For production use, pair the `version` field with Git SHA for full lineage:
 - `version: 3` tells you "this is the third significant revision"
 - `git log specs/hiring/senior-frontend-platform.md` tells you every change
 
-SpecKit records the spec version in every output's meta block, creating an audit trail from output back to the spec that produced it.
+Hiring Manager Tools records the spec version in every output's meta block, creating an audit trail from output back to the spec that produced it.
 
 ## 7. Examples
 

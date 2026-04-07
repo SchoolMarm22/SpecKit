@@ -1,4 +1,4 @@
-"""FastAPI web demo for SpecKit."""
+"""FastAPI web demo for Hiring Manager Tools."""
 
 import os
 
@@ -7,7 +7,18 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-app = FastAPI(title="SpecKit Demo")
+app = FastAPI(title="Hiring Manager Tools Demo")
+
+
+def _check_api_key():
+    """Raise a clear error if ANTHROPIC_API_KEY is not set."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "message": "ANTHROPIC_API_KEY not set. Export it in your environment before starting the server.",
+            },
+        )
 
 
 class PrepRequest(BaseModel):
@@ -33,6 +44,8 @@ async def prep(request: PrepRequest):
     from speckit.claude_client import ClaudeClient
     from speckit.engine import Engine
     from speckit.registry import create_default_registry
+
+    _check_api_key()
 
     spec = parse_spec(request.spec_text)
 
@@ -70,6 +83,8 @@ async def lint(request: LintRequest):
     from speckit.claude_client import ClaudeClient
     from speckit.engine import Engine
     from speckit.registry import create_default_registry
+
+    _check_api_key()
 
     spec = parse_spec(request.spec_text)
 

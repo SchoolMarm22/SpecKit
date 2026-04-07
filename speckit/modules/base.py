@@ -25,7 +25,7 @@ class ModuleResult:
 
 
 class Module(ABC):
-    """Base class for all SpecKit modules."""
+    """Base class for all Hiring Manager Tools modules."""
 
     @property
     @abstractmethod

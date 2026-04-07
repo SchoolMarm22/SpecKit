@@ -1,4 +1,4 @@
-"""Pytest configuration for SpecKit evals."""
+"""Pytest configuration for Hiring Manager Tools evals."""
 
 
 def pytest_configure(config):

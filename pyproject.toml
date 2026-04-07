@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "speckit"
+name = "hiring-manager-tools"
 version = "0.1.0"
 description = "Spec files for AI-native people management"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "anthropic>=0.49.0",
     "fastapi>=0.115.0",
@@ -26,4 +26,4 @@ dev = [
 ]
 
 [project.scripts]
-speckit = "speckit.cli:main"
+spec = "speckit.cli:main"

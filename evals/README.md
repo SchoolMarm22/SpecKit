@@ -1,6 +1,6 @@
 # Eval Suite
 
-SpecKit's eval suite makes **real API calls** to Claude and validates real behavior. These are not mocks. The suite tests that the system produces useful, consistent, and fair output.
+Hiring Manager Tools' eval suite makes **real API calls** to Claude and validates real behavior. These are not mocks. The suite tests that the system produces useful, consistent, and fair output.
 
 ## Running
 

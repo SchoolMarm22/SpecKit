@@ -1,4 +1,4 @@
-"""SpecKit — Spec files for AI-native people management."""
+"""Hiring Manager Tools — Spec files for AI-native people management."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ __version__ = "0.1.0"
 
 
 class SpecKitError(Exception):
-    """Base exception for SpecKit."""
+    """Base exception for Hiring Manager Tools."""
 
 
 class SpecValidationError(SpecKitError):

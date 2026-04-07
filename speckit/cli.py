@@ -1,4 +1,4 @@
-"""CLI entry point for SpecKit."""
+"""CLI entry point for Hiring Manager Tools."""
 
 import json
 import os
@@ -9,7 +9,7 @@ import click
 
 @click.group()
 def main():
-    """SpecKit -- AI-native people management, configured by spec files."""
+    """Hiring Manager Tools -- AI-native people management, configured by spec files."""
     pass
 
 

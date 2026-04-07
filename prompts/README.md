@@ -1,6 +1,6 @@
 # Prompt Templates
 
-This directory contains versioned prompt templates used by SpecKit modules. Each template is a markdown file with YAML frontmatter.
+This directory contains versioned prompt templates used by Hiring Manager Tools modules. Each template is a markdown file with YAML frontmatter.
 
 ## Format
 

@@ -1,4 +1,4 @@
-"""MCP server for SpecKit — exposes spec resources and tools."""
+"""MCP server for Hiring Manager Tools — exposes spec resources and tools."""
 
 import json
 import os

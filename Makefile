@@ -13,13 +13,13 @@ test-bias:
 	pytest evals/test_bias_swap.py -v
 
 lint:
-	speckit lint --spec hiring/senior-frontend-platform
+	spec lint --spec hiring/senior-frontend-platform
 
 serve:
-	speckit serve
+	spec serve
 
 web:
-	speckit web
+	spec web
 
 prep:
-	speckit prep --spec hiring/senior-frontend-platform --resume evals/fixtures/sample_resume.md --pretty
+	spec prep --spec hiring/senior-frontend-platform --resume evals/fixtures/sample_resume.md --pretty

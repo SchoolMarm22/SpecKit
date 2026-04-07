@@ -111,7 +111,7 @@ The script is idempotent — it skips specs that already exist. Delete a file to
 
 ## Customizing
 
-These specs are starting points. Copy one to `specs/hiring/`, edit it to reflect your actual team's priorities, and use it with SpecKit:
+These specs are starting points. Copy one to `specs/hiring/`, edit it to reflect your actual team's priorities, and use it with Hiring Manager Tools:
 
 ```bash
 cp specs/library/hiring/generic/backend-python-senior.md specs/hiring/my-backend-role.md

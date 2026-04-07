@@ -1,1 +1,1 @@
-"""SpecKit web demo."""
+"""Hiring Manager Tools web demo."""
