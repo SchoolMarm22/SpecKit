@@ -1,8 +1,8 @@
-# SpecKit — Build Specification
+# Hiring Manager Tools — Build Specification
 
 ## What You're Building
 
-SpecKit is an open-source spec-file engine for AI-native people management. It introduces a single core abstraction — the **spec file** — and ships with one reference module (interview prep), a CLI, an MCP server, a minimal web demo, and an eval suite.
+Hiring Manager Tools is an open-source spec-file engine for AI-native people management. It introduces a single core abstraction — the **spec file** — and ships with one reference module (interview prep), a CLI, an MCP server, a minimal web demo, and an eval suite.
 
 The project exists to demonstrate a thesis: **spec files are to people management what config files are to infrastructure — natural language documents that make AI behavior consistent, auditable, and manager-controlled.**
 
@@ -13,7 +13,7 @@ This is not a startup product. It's a portfolio artifact designed to demonstrate
 ## Project Structure
 
 ```
-speckit/
+hiring_manager_tools/
 ├── README.md
 ├── SPEC_FORMAT.md
 ├── LICENSE                     # MIT
@@ -28,7 +28,7 @@ speckit/
 ├── prompts/                    # Prompt templates, versioned
 │   ├── interview_prep.md
 │   └── spec_lint.md
-├── speckit/                    # Python package
+├── hiring_manager_tools/                    # Python package
 │   ├── __init__.py
 │   ├── spec.py                 # SpecFile dataclass, loader, parser
 │   ├── engine.py               # Engine executor
@@ -55,7 +55,7 @@ speckit/
 │   └── fixtures/
 │       ├── sample_resume.md
 │       └── biased_spec.md
-├── .speckit/                   # Git-ignored runtime state
+├── .hiring_manager_tools/                   # Git-ignored runtime state
 │   └── runs/                   # JSONL run records
 └── .gitignore
 ```
@@ -89,15 +89,15 @@ pytest>=8.0
 ### Entry Points (defined in pyproject.toml)
 
 ```
-speckit = "speckit.cli:main"
+spec = "hiring_manager_tools.cli:main"
 ```
 
 So after `pip install .` the user can run:
-- `speckit prep --spec hiring/senior-frontend-platform --resume ./resume.txt`
-- `speckit lint --spec hiring/senior-frontend-platform`
-- `speckit list --kind hiring`
-- `speckit serve` (starts MCP server)
-- `speckit web` (starts web demo on localhost:8000)
+- `spec prep --spec hiring/senior-frontend-platform --resume ./resume.txt`
+- `spec lint --spec hiring/senior-frontend-platform`
+- `spec list --kind hiring`
+- `spec serve` (starts MCP server)
+- `spec web` (starts web demo on localhost:8000)
 
 ---
 
@@ -205,7 +205,7 @@ class SpecFile:
 
 ### Spec Loader
 
-`speckit/spec.py` should expose:
+`hiring_manager_tools/spec.py` should expose:
 
 ```python
 def load_spec(path: str) -> SpecFile:
@@ -239,7 +239,7 @@ Use `pyyaml` for YAML parsing. Do not use a markdown parsing library for section
 ### Module Base Class
 
 ```python
-# speckit/modules/base.py
+# hiring_manager_tools/modules/base.py
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -259,7 +259,7 @@ class ModuleResult:
     meta: dict                  # Spec version, prompt version, model, timestamp, etc.
 
 class Module(ABC):
-    """Base class for all SpecKit modules."""
+    """Base class for all Hiring Manager Tools modules."""
 
     @property
     @abstractmethod
@@ -292,7 +292,7 @@ class Module(ABC):
 ### Module Registry
 
 ```python
-# speckit/registry.py
+# hiring_manager_tools/registry.py
 
 class ModuleRegistry:
     """Maps action names to modules. Validates spec kind compatibility."""
@@ -334,13 +334,13 @@ def create_default_registry() -> ModuleRegistry:
 ### Engine
 
 ```python
-# speckit/engine.py
+# hiring_manager_tools/engine.py
 
 class Engine:
     """Executes invocation plans against Claude.
     Does not know about specific modules — only about plans and results."""
 
-    def __init__(self, client: ClaudeClient, runs_dir: str = ".speckit/runs"):
+    def __init__(self, client: ClaudeClient, runs_dir: str = ".hiring_manager_tools/runs"):
         self.client = client
         self.runs_dir = runs_dir
 
@@ -384,14 +384,14 @@ class Engine:
 
     def _persist_run(self, run: RunRecord):
         """Append run record to JSONL file."""
-        # Create .speckit/runs/ if it doesn't exist
-        # Append JSON line to .speckit/runs/YYYY-MM-DD.jsonl
+        # Create .hiring_manager_tools/runs/ if it doesn't exist
+        # Append JSON line to .hiring_manager_tools/runs/YYYY-MM-DD.jsonl
 ```
 
 ### Claude Client
 
 ```python
-# speckit/claude_client.py
+# hiring_manager_tools/claude_client.py
 
 class ClaudeClient:
     """Thin wrapper around the Anthropic SDK.
@@ -434,7 +434,7 @@ This is intentionally thin. No retry logic beyond what the Anthropic SDK provide
 ### Run Records
 
 ```python
-# speckit/run_record.py
+# hiring_manager_tools/run_record.py
 
 @dataclass
 class RunRecord:
@@ -470,12 +470,12 @@ class RunRecord:
         """Serialize to JSON string for JSONL persistence."""
 ```
 
-Persist to `.speckit/runs/YYYY-MM-DD.jsonl`. One line per run. `.speckit/` is in `.gitignore`.
+Persist to `.hiring_manager_tools/runs/YYYY-MM-DD.jsonl`. One line per run. `.hiring_manager_tools/` is in `.gitignore`.
 
 ### Validation
 
 ```python
-# speckit/validation.py
+# hiring_manager_tools/validation.py
 
 @dataclass
 class ValidationIssue:
@@ -524,7 +524,7 @@ VALID_KINDS = {"hiring", "review", "team", "onboarding", "offboarding"}
 This is the main module. It takes a hiring spec and a resume, and produces a structured interview preparation package.
 
 ```python
-# speckit/modules/interview_prep.py
+# hiring_manager_tools/modules/interview_prep.py
 
 class InterviewPrepModule(Module):
     name = "interview_prep"
@@ -709,7 +709,7 @@ A structured interview preparation package with:
 A simpler module that analyzes a spec file for quality issues using Claude.
 
 ```python
-# speckit/modules/spec_lint.py
+# hiring_manager_tools/modules/spec_lint.py
 
 class SpecLintModule(Module):
     name = "spec_lint"
@@ -837,13 +837,13 @@ Spec files are natural language documents written by managers that configure how
 ### CLI
 
 ```python
-# speckit/cli.py
+# hiring_manager_tools/cli.py
 
 import click
 
 @click.group()
 def main():
-    """SpecKit — AI-native people management, configured by spec files."""
+    """Hiring Manager Tools — AI-native people management, configured by spec files."""
     pass
 
 @main.command()
@@ -899,7 +899,7 @@ All CLI commands output JSON to stdout. Humans can pipe through `jq`. Programs c
 ### MCP Server
 
 ```python
-# speckit/mcp_server.py
+# hiring_manager_tools/mcp_server.py
 ```
 
 Use the official MCP Python SDK (`mcp` package). The MCP server exposes:
@@ -931,18 +931,18 @@ No business logic in the MCP server. All logic lives in the engine and modules.
 
 ### Web Demo
 
-**FastAPI app** (`speckit/web/app.py`):
+**FastAPI app** (`hiring_manager_tools/web/app.py`):
 
 ```python
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-app = FastAPI(title="SpecKit Demo")
+app = FastAPI(title="Hiring Manager Tools Demo")
 
 @app.get("/")
 async def index():
-    return FileResponse("speckit/web/static/index.html")
+    return FileResponse("hiring_manager_tools/web/static/index.html")
 
 @app.post("/api/prep")
 async def prep(request: PrepRequest):
@@ -966,12 +966,12 @@ class LintRequest(BaseModel):
     spec_text: str
 ```
 
-**Static HTML UI** (`speckit/web/static/index.html`):
+**Static HTML UI** (`hiring_manager_tools/web/static/index.html`):
 
 A single HTML file. No build step. No npm. No React. Plain HTML + CSS + vanilla JS. This is a demo, not a product.
 
 Layout:
-- Header with "SpecKit" branding and one-line description
+- Header with "Hiring Manager Tools" branding and one-line description
 - Two-column layout: left column is spec input (textarea), right column is resume input (textarea)
 - Below: two buttons — "Generate Interview Prep" and "Lint Spec"
 - Below buttons: output area showing formatted JSON results
@@ -1104,16 +1104,16 @@ test-bias:
 	pytest evals/test_bias_swap.py -v
 
 lint:
-	speckit lint --spec hiring/senior-frontend-platform
+	spec lint --spec hiring/senior-frontend-platform
 
 serve:
-	speckit serve
+	spec serve
 
 web:
-	speckit web
+	spec web
 
 prep:
-	speckit prep --spec hiring/senior-frontend-platform --resume evals/fixtures/sample_resume.md --pretty
+	spec prep --spec hiring/senior-frontend-platform --resume evals/fixtures/sample_resume.md --pretty
 ```
 
 ---
@@ -1140,13 +1140,13 @@ The README is the most important artifact in the repo. Structure it exactly like
 
 ### 1. Title + One-Liner
 ```
-# SpecKit
+# Hiring Manager Tools
 
 Spec files for AI-native people management.
 ```
 
 ### 2. What This Is (one paragraph)
-Spec files are natural language documents that configure how AI behaves in people management workflows — hiring, reviews, onboarding, team management. SpecKit is an open-source engine that parses spec files, applies them through Claude, and produces structured, auditable output. It ships with one reference module (interview prep) and an MCP server for use inside Claude Desktop.
+Spec files are natural language documents that configure how AI behaves in people management workflows — hiring, reviews, onboarding, team management. Hiring Manager Tools is an open-source engine that parses spec files, applies them through Claude, and produces structured, auditable output. It ships with one reference module (interview prep) and an MCP server for use inside Claude Desktop.
 
 ### 3. The Insight (two paragraphs)
 The gap between how we configure AI for code and how we configure AI for people. In the coding world, we've learned that natural language configuration works — prompts, specs, skills, system instructions. The equivalent for people management doesn't exist yet. HR tools still use dropdowns and checkboxes. A hiring manager can't express "I want startup experience because full-stack at a 5-person company means something different than full-stack at Meta" through a form field. But they can write it in a spec, and Claude can apply it consistently to 500 candidates.
@@ -1155,20 +1155,20 @@ Spec files are to people management what config files are to infrastructure — 
 
 ### 4. Quick Start
 ```bash
-pip install speckit
+pip install hiring-manager-tools
 export ANTHROPIC_API_KEY=your-key
 
 # Generate interview prep
-speckit prep --spec hiring/senior-frontend-platform --resume ./resume.txt
+spec prep --spec hiring/senior-frontend-platform --resume ./resume.txt
 
 # Lint a spec for bias and quality
-speckit lint --spec hiring/senior-frontend-platform
+spec lint --spec hiring/senior-frontend-platform
 
 # Start the MCP server (for Claude Desktop)
-speckit serve
+spec serve
 
 # Start the web demo
-speckit web
+spec web
 ```
 
 ### 5. The Spec File Format
@@ -1196,7 +1196,7 @@ Short section. Key points:
 - The spec is always the source of truth. The AI is always the executor. The human is always the decision-maker.
 
 ### 9. MCP Setup
-Brief instructions for configuring the SpecKit MCP server in Claude Desktop's `claude_desktop_config.json`.
+Brief instructions for configuring the Hiring Manager Tools MCP server in Claude Desktop's `claude_desktop_config.json`.
 
 ### 10. Development
 ```bash
