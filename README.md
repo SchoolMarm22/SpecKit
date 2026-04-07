@@ -1,47 +1,37 @@
-# SpecKit
+# Hiring Manager Tools
 
 Spec files for AI-native people management.
 
-## What This Is
+---
 
-Spec files are natural language documents that configure how AI behaves in people management workflows — hiring, reviews, onboarding, team management. SpecKit is an open-source engine that parses spec files, applies them through Claude, and produces structured, auditable output. It ships with one reference module (interview prep), a spec linter, a CLI, an MCP server for Claude Desktop, and an eval suite that tests for consistency and bias.
+## README for Humans
 
-## The Insight
+### What is this?
 
-There's a gap between how we configure AI for code and how we configure AI for people. In the coding world, we've learned that natural language configuration works — prompts, specs, system instructions. The equivalent for people management doesn't exist yet. HR tools still use dropdowns and checkboxes. A hiring manager can't express "I want startup experience because full-stack at a 5-person company means something different than full-stack at Meta" through a form field. But they can write it in a spec, and Claude can apply it consistently to 500 candidates.
+A CLI tool that turns your hiring specs (markdown files describing what you're looking for in a candidate) into structured interview prep packages powered by Claude. You write what matters for a role in plain English. The tool applies your priorities consistently to every candidate.
 
-Spec files are to people management what config files are to infrastructure — human-readable, version-controlled documents that make AI behavior consistent, auditable, and manager-controlled.
-
-## Quick Start
+### Install & Run
 
 ```bash
-# Clone and install
-git clone https://github.com/yourusername/speckit.git
-cd speckit
-pip install -e ".[dev]"
-
-# Set your API key
+pip install hiring-manager-tools
 export ANTHROPIC_API_KEY=your-key
 
 # Generate interview prep from a spec + resume
-speckit prep --spec hiring/senior-frontend-platform --resume ./resume.txt --pretty
+spec prep --spec hiring/senior-frontend-platform --resume ./resume.txt --pretty
 
-# Lint a spec for bias and quality
-speckit lint --spec hiring/senior-frontend-platform --pretty
+# Lint a spec for bias and quality issues
+spec lint --spec hiring/senior-frontend-platform --pretty
 
 # List available specs
-speckit list --kind hiring --pretty
+spec list --kind hiring --pretty
 
-# Start the MCP server (for Claude Desktop)
-speckit serve
-
-# Start the web demo (localhost:8000)
-speckit web
+# Launch the web demo (localhost:8000)
+spec web
 ```
 
-## The Spec File Format
+### Write a Spec
 
-A spec file is a markdown file with YAML frontmatter. The frontmatter is machine-readable metadata. The body is natural language that Claude reads and applies.
+Create a markdown file in `specs/hiring/`:
 
 ```markdown
 ---
@@ -49,12 +39,14 @@ kind: hiring
 role: Senior Frontend Engineer
 team: Platform
 level: L5
-version: 2
+version: 1
 ---
 
 # What We're Looking For
 
-Prefer candidates with real startup experience...
+I'd rather hire someone with 2 years at a real startup than
+5 years at Google, unless the Google person can clearly
+articulate what *they* built vs. what the team built.
 
 ## Must-Haves
 - Shipped production React at scale (>100k users)
@@ -65,11 +57,42 @@ Prefer candidates with real startup experience...
 - Dismissive of accessibility or performance
 ```
 
-See [SPEC_FORMAT.md](SPEC_FORMAT.md) for the full format specification.
+Write it like you'd explain the role to a colleague. Be opinionated. The tool weights what you weight.
 
-## Architecture
+### What You Get Back
 
-SpecKit follows a strict layered architecture where each layer has a single responsibility:
+- **Candidate Snapshot** — 3-4 sentence summary of the candidate
+- **Spec Alignment** — Item-by-item assessment against your criteria with confidence levels
+- **Interview Questions** — 8-10 tailored questions with what to look for and red flags
+- **Bias Check** — Flags any non-job-relevant factors that may have influenced the assessment
+
+### What It Can't Do
+
+- Score or rank candidates (by design — it helps you prepare, not decide)
+- Work without an API key (all AI features need `ANTHROPIC_API_KEY`)
+- Guarantee bias-free output (the bias check is transparency, not a guarantee)
+- Replace your judgment (every output is input to a human decision)
+
+### Extend It
+
+- **Add specs:** Drop `.md` files in `specs/hiring/`, run `spec list` to verify
+- **Lint your specs:** `spec lint` checks for bias risk, vagueness, legal issues
+- **Web demo:** `spec web` → paste spec + resume in the browser, get instant results
+- **MCP for Claude Desktop:** `spec serve` → use specs as resources inside Claude
+
+### Spec Library
+
+`specs/library/` contains ~160 ready-to-use hiring specs covering frontend, backend, full-stack, mobile, DevOps, data, ML, PM, design, and marketing roles across 4 levels — plus company-specific specs for Google, Apple, Amazon, Netflix, Meta, Stripe, and 9 more companies. See `specs/library/README.md` for the full catalog.
+
+---
+
+## README for Agents
+
+The following sections provide detailed architectural context, extension patterns, and implementation details for AI agents and developers working with this codebase.
+
+### Architecture
+
+Hiring Manager Tools follows a strict four-layer architecture:
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -92,7 +115,7 @@ SpecKit follows a strict layered architecture where each layer has a single resp
 5. `Engine.execute()` sends the plan to Claude via `ClaudeClient`, records a `RunRecord`, and returns a `ModuleResult`
 6. Interface formats and returns the result
 
-No business logic lives in the interfaces. No Claude-specific logic lives in the modules. No module-specific logic lives in the engine. Each function does one thing.
+No business logic lives in the interfaces. No Claude-specific logic lives in the modules. No module-specific logic lives in the engine.
 
 ### Key Design Decisions
 
@@ -102,38 +125,40 @@ No business logic lives in the interfaces. No Claude-specific logic lives in the
 | **Prompt templates as markdown files** | Prompts are versioned separately from code. Anyone can read `prompts/interview_prep.md` and understand what Claude is asked to do. |
 | **Meta block on every output** | Every result includes spec version, prompt version, model, timestamp, and run ID. This is the audit trail. |
 | **No database** | Specs are files on disk. Run records are append-only JSONL. Git is the version control system. |
-| **No resume screening** | Interview prep helps humans prepare better questions. Screening replaces human judgment with AI judgment. That's a different product with different risk. This is a deliberate architectural boundary. |
+| **No resume screening** | Deliberate architectural boundary. Prep helps humans prepare; screening replaces human judgment. |
 
-## What's Built
+### What's Built
 
-- **Interview Prep module** — spec + resume → structured interview package with candidate snapshot, spec alignment, tailored questions, and bias check
-- **Spec Lint module** — analyzes specs for bias risk, vagueness, legal risk, missing sections, and clarity issues
-- **CLI** — `speckit prep`, `speckit lint`, `speckit list`, `speckit serve`, `speckit web`
-- **MCP Server** — expose specs as resources and tools for Claude Desktop
-- **Web Demo** — single-file dark-mode UI; paste a spec and resume, get instant results
-- **Eval suite** — consistency tests, bias swap tests, lint validation
+| Component | File(s) | Description |
+|-----------|---------|-------------|
+| Spec Parser | `speckit/spec.py` | `SpecFile` dataclass, YAML frontmatter parsing, section splitting by H2, `load_spec()`, `parse_spec()`, `list_specs()` |
+| Validation | `speckit/validation.py` | Structural checks (no API calls). Required fields per kind, unknown kind warnings |
+| Engine | `speckit/engine.py` | Executes `InvocationPlan`s, records runs to JSONL, builds meta blocks |
+| Claude Client | `speckit/claude_client.py` | Thin Anthropic SDK wrapper. `tool_use` with forced `tool_choice` for structured JSON |
+| Registry | `speckit/registry.py` | Maps module names to instances, validates spec-kind compatibility |
+| Run Records | `speckit/run_record.py` | `RunRecord` dataclass, JSONL persistence to `.speckit/runs/YYYY-MM-DD.jsonl` |
+| Module ABC | `speckit/modules/base.py` | `Module`, `InvocationPlan`, `ModuleResult`. Prompt template loading helpers |
+| Interview Prep | `speckit/modules/interview_prep.py` | Hiring spec + resume → snapshot, alignment, questions, bias check |
+| Spec Lint | `speckit/modules/spec_lint.py` | Any spec → issues (bias_risk, vagueness, legal_risk, missing_section, clarity) |
+| CLI | `speckit/cli.py` | Click-based. `prep`, `lint`, `list`, `serve`, `web` |
+| MCP Server | `speckit/mcp_server.py` | Resources (`spec://kind/name`) + Tools (`prepare_interview`, `lint_spec`, `list_specs`) |
+| Web Demo | `speckit/web/app.py`, `speckit/web/static/index.html` | FastAPI + single-file dark-mode UI |
+| Eval: Consistency | `evals/test_consistency.py` | Same input 3x, assert structural stability |
+| Eval: Bias Swap | `evals/test_bias_swap.py` | 4 name variants, assert identical assessments |
+| Eval: Lint | `evals/test_spec_lint.py` | Known-bad specs → correct flags |
 
-## What's Not Built (Yet)
+### Output Schemas
 
-The spec format supports the full employee lifecycle. These modules are designed but not yet implemented:
+**Interview Prep (`interview_prep` module):**
+- `candidate_snapshot`: string (3-4 sentences)
+- `spec_alignment`: array of `{criterion, signal, confidence, follow_up}` — confidence is `strong|moderate|weak|no_signal`
+- `recommended_questions`: array of `{question, category, seeks, good_answer_looks_like, red_flags}` — category is `technical_depth|experience_verification|culture_and_collaboration|growth_areas`
+- `bias_check`: `{flags: string[], note: string}`
 
-- **Resume Screening** — Deliberately not built. Interview prep helps humans prepare. Screening replaces human judgment. That's a different product with different risk.
-- **Onboarding Plans** — Generate personalized onboarding from team specs + interview signal
-- **1:1 Prep** — Synthesize previous notes, work patterns, and growth goals before each meeting
-- **Review Evidence Assembly** — Continuous evidence collection for performance reviews
-- **Offboarding Knowledge Capture** — Structured exit interviews with cross-departure synthesis
-
-## What It Cannot Do
-
-Being explicit about limitations:
-
-- **Cannot score or rank candidates.** The interview prep module produces a preparation package for the interviewer. It does not output a hire/no-hire recommendation or a numerical score.
-- **Cannot operate without an API key.** All AI-powered features (prep, lint) require `ANTHROPIC_API_KEY`. The `list` command works offline.
-- **Cannot guarantee bias-free output.** The bias swap eval tests for demographic consistency, but no system can fully eliminate bias. The bias check in every output is a transparency tool, not a guarantee.
-- **Cannot replace human judgment.** Every output is structured as input to a human decision-maker, not as a decision itself.
-- **Cannot integrate with ATS/HRIS systems directly.** The MCP server is the integration surface. External connectors (Greenhouse, Workday, etc.) would be built on top.
-
-## Extending SpecKit
+**Spec Lint (`spec_lint` module):**
+- `issues`: array of `{level, category, text, suggestion}` — level is `error|warning|suggestion`, category is `bias_risk|vagueness|missing_section|legal_risk|clarity|completeness`
+- `summary`: string (2-3 sentences)
+- `overall_quality`: `strong|adequate|needs_work|problematic`
 
 ### Adding a New Module
 
@@ -149,20 +174,14 @@ class YourModule(Module):
 
     @property
     def supported_kinds(self) -> list[str]:
-        return ["hiring"]  # Which spec kinds this works with
+        return ["hiring"]
 
     def input_schema(self) -> dict:
-        return {
-            "type": "object",
-            "required": ["your_input"],
-            "properties": {
-                "your_input": {"type": "string", "description": "..."}
-            }
-        }
+        return {"type": "object", "required": ["your_input"], "properties": {...}}
 
     def plan(self, spec, inputs: dict) -> InvocationPlan:
         system_prompt = self._load_prompt_template()
-        user_message = f"Your spec:\n{spec.body}\n\nYour input:\n{inputs['your_input']}"
+        user_message = f"Spec:\n{spec.body}\n\nInput:\n{inputs['your_input']}"
         return InvocationPlan(
             system_prompt=system_prompt,
             messages=[{"role": "user", "content": user_message}],
@@ -171,80 +190,48 @@ class YourModule(Module):
         )
 
     def output_schema(self) -> dict:
-        return {
-            "type": "object",
-            "required": ["result"],
-            "properties": {
-                "result": {"type": "string", "description": "..."}
-            }
-        }
+        return {"type": "object", "required": ["result"], "properties": {...}}
 ```
 
-2. Create `prompts/your_module.md` with YAML frontmatter containing `prompt_version`.
-
-3. Register it in `speckit/registry.py`:
-
-```python
-def create_default_registry() -> ModuleRegistry:
-    registry = ModuleRegistry()
-    registry.register(InterviewPrepModule())
-    registry.register(SpecLintModule())
-    registry.register(YourModule())  # Add here
-    return registry
-```
-
-4. Add a CLI command in `speckit/cli.py` and corresponding MCP tool in `speckit/mcp_server.py`.
+2. Create `prompts/your_module.md` with YAML frontmatter (`prompt_version`, `module`).
+3. Register in `speckit/registry.py` → `create_default_registry()`.
+4. Add CLI command in `speckit/cli.py` and MCP tool in `speckit/mcp_server.py`.
 
 ### Adding a New Spec Kind
 
 1. Add the kind to `VALID_KINDS` in `speckit/validation.py`.
 2. Add kind-specific required fields to `validate_spec_structure()`.
-3. Create a `specs/{kind}/` directory with example specs.
-4. Write a module that lists the new kind in its `supported_kinds`.
+3. Create `specs/{kind}/` with example specs.
+4. Write a module that includes the new kind in `supported_kinds`.
 
-### Writing Your Own Specs
+### Error Handling
 
-Specs are just markdown files with YAML frontmatter. Place them in `specs/{kind}/`:
+Exception hierarchy rooted at `SpecKitError`:
 
-```bash
-# Create a new spec
-mkdir -p specs/hiring
-cat > specs/hiring/my-role.md << 'EOF'
----
-kind: hiring
-role: My Role Title
-team: My Team
-level: L4
-version: 1
----
+| Exception | When |
+|-----------|------|
+| `SpecValidationError` | Spec fails structural validation |
+| `UnknownModuleError` | Requested module doesn't exist |
+| `IncompatibleSpecError` | Module doesn't support the spec's kind |
+| `EngineError` | Claude didn't return structured output |
 
-# What We're Looking For
-...
-EOF
+### What's Not Built (by design)
 
-# Verify it loads
-speckit list --kind hiring --pretty
+- No authentication or user management
+- No database (files + JSONL + Git)
+- No candidate scoring or ranking
+- No ATS/HRIS integrations (MCP server is the integration surface)
+- No build step for web UI (single HTML file, vanilla JS)
+- No multi-model abstraction (Claude only)
+- No Docker/k8s config
 
-# Run it
-speckit prep --spec hiring/my-role --resume ./candidate.txt --pretty
-```
-
-## Philosophy
-
-- **The architecture is the ethics.** The decision not to build screening isn't a gap — it's a design decision. Interview prep helps interviewers prepare better questions. Screening replaces human judgment with AI judgment. We build the former.
-- **Structured output isn't just for convenience — it's for auditability.** Every output includes a meta block with the spec version, prompt version, model, and timestamp that produced it.
-- **Bias tests are in CI, not in a compliance PDF.** The eval suite runs real API calls that test for demographic bias in outputs.
-- **The spec is always the source of truth.** The AI is always the executor. The human is always the decision-maker.
-
-## MCP Setup
-
-Add SpecKit to your Claude Desktop configuration (`claude_desktop_config.json`):
+### MCP Server Setup
 
 ```json
 {
   "mcpServers": {
-    "speckit": {
-      "command": "speckit",
+    "hiring-manager-tools": {
+      "command": "spec",
       "args": ["serve"],
       "env": {
         "ANTHROPIC_API_KEY": "your-key"
@@ -254,92 +241,55 @@ Add SpecKit to your Claude Desktop configuration (`claude_desktop_config.json`):
 }
 ```
 
-Then in Claude Desktop, you can:
-- Browse specs as resources (`spec://hiring/senior-frontend-platform`)
-- Use the `prepare_interview` tool with a spec reference and resume text
-- Use the `lint_spec` tool to analyze spec quality
-- Use the `list_specs` tool to discover available specs
+**Resources:** `spec://hiring/*`, `spec://hiring/senior-frontend-platform`
 
-### MCP Resources
+**Tools:** `prepare_interview(spec_ref, resume_text)`, `lint_spec(spec_ref)`, `list_specs(kind?)`
 
-| URI Pattern | Description |
-|-------------|-------------|
-| `spec://hiring/*` | All hiring specs |
-| `spec://review/*` | All review specs |
-| `spec://hiring/senior-frontend-platform` | A specific spec's full content |
-
-### MCP Tools
-
-| Tool | Parameters | Returns |
-|------|-----------|---------|
-| `prepare_interview` | `spec_ref` (string), `resume_text` (string) | Full interview prep JSON |
-| `lint_spec` | `spec_ref` (string) | Lint results JSON |
-| `list_specs` | `kind` (string, optional) | Array of available specs |
-
-## Development
+### Development
 
 ```bash
-git clone https://github.com/yourusername/speckit.git
-cd speckit
+git clone https://github.com/SchoolMarm22/SpecKit.git
+cd SpecKit
 pip install -e ".[dev]"
-
-# Run non-slow tests (no API key needed — currently only structural tests)
-make test
-
-# Run full eval suite (requires ANTHROPIC_API_KEY, ~$0.50-1.00)
-make test-all
-
-# Run bias swap tests specifically (~$0.30)
-make test-bias
-
-# Quick smoke test
-speckit list --kind hiring --pretty
+make test          # Non-slow tests (no API key needed)
+make test-all      # Full eval suite (~$0.50-1.00)
+make test-bias     # Bias swap tests (~$0.30)
 ```
 
 ### Project Structure
 
 ```
-speckit/
 ├── speckit/                 # Python package
 │   ├── __init__.py          # Public API + exceptions
 │   ├── spec.py              # SpecFile dataclass, loader, parser
-│   ├── validation.py        # Structural validation (no API calls)
-│   ├── engine.py            # Executes plans against Claude
+│   ├── validation.py        # Structural validation
+│   ├── engine.py            # Plan execution + audit
 │   ├── registry.py          # Module registry
-│   ├── claude_client.py     # Thin Anthropic SDK wrapper
-│   ├── run_record.py        # RunRecord + JSONL persistence
+│   ├── claude_client.py     # Anthropic SDK wrapper
+│   ├── run_record.py        # RunRecord + JSONL
 │   ├── cli.py               # CLI (click)
 │   ├── mcp_server.py        # MCP server
 │   ├── modules/
-│   │   ├── base.py          # Module ABC, InvocationPlan, ModuleResult
+│   │   ├── base.py          # Module ABC
 │   │   ├── interview_prep.py
 │   │   └── spec_lint.py
 │   └── web/
 │       ├── app.py           # FastAPI
-│       └── static/
-│           └── index.html   # Single-file demo UI
-├── specs/                   # Example spec files
-│   ├── hiring/
-│   │   ├── senior-frontend-platform.md
-│   │   └── devops-lead.md
-│   └── review/
+│       └── static/index.html
+├── specs/                   # Example + library specs
 ├── prompts/                 # Versioned prompt templates
-│   ├── interview_prep.md
-│   └── spec_lint.md
 ├── evals/                   # Eval suite (real API calls)
-│   ├── test_consistency.py
-│   ├── test_bias_swap.py
-│   ├── test_spec_lint.py
-│   └── fixtures/
-│       ├── sample_resume.md
-│       └── biased_spec.md
+├── ARCHITECTURE.md          # Deep architecture docs
 ├── SPEC_FORMAT.md           # Format RFC
-├── ARCHITECTURE.md          # Detailed architecture docs
-├── pyproject.toml
-├── Makefile
-└── .speckit/                # Git-ignored runtime state
-    └── runs/                # JSONL run records
+└── pyproject.toml
 ```
+
+### Philosophy
+
+- The architecture is the ethics — no screening module is a design decision, not a gap.
+- Structured output is for auditability, not convenience.
+- Bias tests run in CI, not in a compliance PDF.
+- The spec is the source of truth. The AI is the executor. The human is the decision-maker.
 
 ## License
 
